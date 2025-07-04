@@ -12,6 +12,11 @@ class RegistrationForm(forms.ModelForm):
             'amount1', 'amount2', 'payment_mode1', 'payment_mode2', 'payment_proof1',
             'payment_proof2', 'full_fee_paid'
         ]
+
+        labels = {
+            'img': 'Img (Max size 10Mb):',
+        }
+        
         widgets = {
             'standard': forms.Select(attrs={'id': 'standard'}),
             'board': forms.Select(attrs={'id': 'board'}),
