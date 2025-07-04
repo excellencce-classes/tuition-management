@@ -407,7 +407,7 @@
             const branch = document.getElementById("branch").value;
             const month = document.getElementById("month").value;
 
-            const url = `/app/monthly_attendance/?standard=${standard}&board=${board}&school=${school}&branch=${branch}&month=${month}`;
+            const url = `/monthly_attendance/?standard=${standard}&board=${board}&school=${school}&branch=${branch}&month=${month}`;
 
             fetch(url, {
                 headers: {
@@ -470,7 +470,7 @@
                         // You might need to adjust this if student_detail click is essential after AJAX.
                         // One way is to add 'data-student-id' to the row and add event listener.
                         row.setAttribute('data-student-id', studentRecord.id); // studentRecord should have 'id'
-                        row.onclick = function() { window.location.href = `/app/student_detail/${studentRecord.id}/`; };
+                        row.onclick = function() { window.location.href = `/student_detail/${studentRecord.id}/`; };
 
 
                         row.insertCell().textContent = index + 1;
