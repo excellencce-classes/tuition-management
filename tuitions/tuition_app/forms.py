@@ -30,7 +30,7 @@ class RegistrationForm(forms.ModelForm):
             'payment_proof1': forms.FileInput(attrs={'id': 'payment_proof1'}),
             'payment_proof2': forms.FileInput(attrs={'id': 'payment_proof2'}),
             'full_fee_paid': forms.CheckboxInput(attrs={'id': 'full_fee_paid'}),
-            'img': forms.FileInput(attrs={'id': 'img', 'placeholder':'Upload image upto 10 Mb only'}),
+            'img (max size 10 Mb)': forms.FileInput(attrs={'id': 'img', 'placeholder':'Upload image upto 10 Mb only'}),
             'email': forms.EmailInput(attrs={'id': 'email'}),
             'dob': forms.TextInput(attrs={'id': 'dob', 'placeholder': 'YYYY-MM-DD', 'type': 'text'}),
             'mother_name': forms.TextInput(attrs={'id': 'mother_name'}),
