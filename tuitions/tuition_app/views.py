@@ -234,7 +234,7 @@ def delete_student(request, student_id):
     
     print(student_id)
     
-    return redirect('/app/filter_students')
+    return redirect('/filter_students')
 
 @login_required
 def update_student(request, student_id):
@@ -314,7 +314,7 @@ def update_student(request, student_id):
         
         student.save()
         
-        url2 = "/app/student/" + str(student_id)
+        url2 = "/student/" + str(student_id)
         
         return redirect(url2)
         
