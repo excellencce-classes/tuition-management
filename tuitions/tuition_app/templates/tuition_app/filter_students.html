@@ -410,7 +410,7 @@
             const branch = document.getElementById("branch").value;
             const attendanceDate = document.getElementById("attendanceDate").value;
         
-            const url = `/app/filter_students/?standard=${encodeURIComponent(standard)}&board=${encodeURIComponent(board)}&school=${encodeURIComponent(school)}&branch=${encodeURIComponent(branch)}&attendanceDate=${encodeURIComponent(attendanceDate)}`;
+            const url = `/filter_students/?standard=${encodeURIComponent(standard)}&board=${encodeURIComponent(board)}&school=${encodeURIComponent(school)}&branch=${encodeURIComponent(branch)}&attendanceDate=${encodeURIComponent(attendanceDate)}`;
         
             console.log('Fetching URL:', url);
             fetch(url, {
