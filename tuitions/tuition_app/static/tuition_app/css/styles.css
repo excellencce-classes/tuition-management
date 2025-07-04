@@ -1,0 +1,232 @@
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #ffcc33, #ff6600);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Light Gray Form Container */
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Stronger shadow for visibility */
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    text-align: center;
+    overflow-y: auto;
+    margin: 20px;
+}
+
+/* Heading */
+h1 {
+    color: #ff6600;
+    margin-bottom: 15px;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+/* Label Styling */
+label {
+    font-weight: bold;
+    display: block;
+    margin: 8px 0 3px;
+    text-align: left;
+    color: black;
+}
+
+/* Input and Select Fields */
+select, input, textarea {
+width: 100%; /* Ensures consistent width */
+padding: 10px;
+margin-bottom: 10px;
+border: 1px solid #999;
+border-radius: 5px;
+font-size: 15px;
+background: white;
+color: black;
+text-align: left; /* Ensures alignment matches other fields */
+display: block;
+}
+
+.input-with-icon {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #0e0e0e;
+}
+
+.input-with-icon input {
+    padding-left: 35px; /* Add padding to make space for the icon */
+}
+
+
+/* Readonly Fields */
+input[readonly] {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    font-size: 25px;
+    text-align: center;
+    color: red;
+}
+
+input, select, textarea {
+box-sizing: border-box;
+}
+/* Buttons */
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: #ff6600;
+    color: white;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s ease-in-out;
+}
+
+
+button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+    background: #ffac74;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background: #373636;
+    color: white;
+}
+
+.dark-mode .container {
+    background: #D2D1D1;
+    color: black;
+}
+
+.dark-mode select,
+.dark-mode input {
+    background-color: #F0EDED;
+    color: black;
+    border: 1px solid #777;
+}
+
+.dark-mode input[readonly] {
+    background-color: #e6e6e6;
+}
+
+/* Dark Mode Button */
+.dark-mode button {
+    background: #ff6600;
+    color: black;
+}
+
+.dark-mode button:hover {
+    background: rgb(246, 7, 7);
+}
+
+/* Toggle Button */
+.dark-mode-toggle {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: black;
+    color: white;
+    border: none;
+    padding: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dark-mode .dark-mode-toggle {
+    background: white;
+    color: black;
+}
+
+/* tuition_app/static/tuition_app/css/styles.css */
+/* tuition_app/static/tuition_app/css/styles.css */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#subject label {
+    display: block;
+    margin: 5px 0;
+}
+
+.subject-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.subject-checkboxes label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 16px;
+}
+
+.subject-checkboxes input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+.dark-mode {
+    background-color: #222;
+    color: #fff;
+}
+
+.dark-mode .subject-checkboxes label {
+    color: #fff;
+}
+
+.dark-mode input,
+.dark-mode select,
+.dark-mode textarea {
+    background-color: #333;
+    color: #fff;
+    border-color: #555;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.qr img {
+    display: block;
+    margin: 20px auto;
+}

@@ -1,0 +1,555 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Monthly Attendance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #ffcc33, #ff6600);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 50px;
+            width: 90%;
+            margin: 80px auto 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            width: 95px;
+            height: auto;
+            display: block;
+            margin: 0 auto 10px;
+        }
+
+        h1 {
+            margin-bottom: 50px;
+            color: #ff6600;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filters label {
+            font-weight: bold;
+        }
+
+        .filters select, .filters input {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            min-width: 180px;
+        }
+
+        .buttons {
+            margin: 10px 0;
+        }
+
+        button{
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background: #ff6600;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn{
+            padding: 10px 15px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 5px;
+            background: #ff6600;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .home-button-container {
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #ffac74;
+        }
+
+        .logout-button {
+            position: fixed;
+            top: 18px;
+            right: 70px;
+            border: 1px solid black;
+            padding: 6px 10px;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 0%;
+            width: 100px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-wrapper {
+            max-height: 400px;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .student-count {
+            margin: 15px 0;
+            padding: 10px 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            justify-content: center;
+        }
+
+        .student-count p {
+            margin: 0;
+        }
+
+        .student-count span {
+            font-weight: bold;
+            margin-left: 5px;
+            color: #2c3e50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #ff6600;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+            min-width: 40px;
+        }
+
+        th:first-child, td:first-child {
+            min-width: 40px;
+            position: sticky;
+            left: 0;
+            background: #ff6600;
+            color: white;
+            z-index: 3;
+        }
+
+        th:nth-child(2), td:nth-child(2) {
+            min-width: 150px;
+            position: sticky;
+            left: 40px;
+            background: #ff6600;
+            color: white;
+            z-index: 2;
+        }
+
+        th:last-child {
+            background: #ff6600;
+            color: white;
+        }
+
+        td:last-child {
+            background: #fff;
+            color: #000;
+        }
+
+        .dark-mode th:last-child {
+            background: #ff6600;
+            color: white;
+        }
+
+        .dark-mode td:last-child {
+            background: #D2D1D1;
+            color: #000;
+        }
+
+        td:first-child, td:nth-child(2) {
+            background: #fff;
+            color: #000;
+        }
+
+        .dark-mode td:first-child, .dark-mode td:nth-child(2) {
+            background: #D2D1D1;
+            color: #000;
+        }
+
+        .present {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .absent {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        body.dark-mode {
+            background: #373636;
+            color: white;
+        }
+
+        .dark-mode .container {
+            background: #D2D1D1;
+            color: black;
+        }
+
+        .dark-mode select,
+        .dark-mode input {
+            background-color: #F0EDED;
+            color: black;
+            border: 1px solid #777;
+        }
+
+        .dark-mode button {
+            background: white;
+            color: black;
+        }
+
+        .dark-mode button:hover {
+            background: rgb(137, 133, 133);
+        }
+
+        .dark-mode .table-wrapper {
+            max-height: 400px;
+            overflow-x: auto;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .dark-mode table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .dark-mode thead {
+            background: #ff6600;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .dark-mode th, .dark-mode td {
+            padding: 8px;
+            border: 1px solid #040404;
+            text-align: center;
+        }
+
+        .dark-mode-toggle {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgb(12, 12, 12);
+            border: none;
+            padding: 6px 10px;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .dark-mode .dark-mode-toggle {
+            background: #ff6600;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MONTHLY ATTENDANCE</h1>
+
+        <div class="filters">
+            <form method="GET" action="{% url 'tuition_app:class_attendance' %}">
+                <label for="standard">Standard:</label>
+                <select id="standard" name="standard">
+                    <option value="">All</option>
+                    <option value="8">8th</option>
+                    <option value="9">9th</option>
+                    <option value="10">10th</option>
+                    <option value="12">12th</option>
+                </select>
+
+                <label for="board">Board:</label>
+                <select id="board" name="board">
+                    <option value="">All</option>
+                    <option value="CBSE">CBSE</option>
+                    <option value="SSC">SSC</option>
+                    <option value="HSC">HSC</option>
+                </select>
+
+                <label for="school">School:</label>
+                <select id="school" name="school">
+                    <option value="">All</option>
+                    <option value="Saint Michael School">Saint Michael School</option>
+                    <option value="Orchid School">Orchid School</option>
+                    <option value="Sai Angel School">Sai Angel School</option>
+                    <option value="Icon Public School">Icon Public School</option>
+                    <option value="Takshila School">Takshila School</option>
+                    <option value="Podar School">Podar School</option>
+                    <option value="Auxilium Convent School">Auxilium Convent School</option>
+                    <option value="Sacred Heart Convent School">Sacred Heart Convent School</option>
+                    <option value="Ashokbhau Firodia School">Ashokbhau Firodia School</option>
+                    <option value="Athare Patil School">Athare Patil School</option>
+                    <option value="NA">Not Applicable</option>
+                </select>
+
+                <label for="branch">Branch:</label>
+                <select id="branch" name="branch">
+                    <option value="">All</option>
+                    <option value="Gulmohar">Gulmohar</option>
+                    <option value="Market Yard">Market Yard</option>
+                </select>
+
+                <br><br>
+
+                <label for="month">Month:</label>
+                <input type="month" id="month" name="month">
+            </form>
+        </div>
+
+        <div class="filter-buttons">
+            <button type="button" onclick="applyFilters()">Apply Filters</button>
+            <button type="button" onclick="resetFilters()">Reset Filters</button>
+        </div>
+
+        <form>
+            <label for="searchbar" class="form-label">Search Student</label>
+            <input name="search" value="{{ search }}" type="text" class="form-control">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+
+        <div class="student-count">
+            <p>Total Students: <span id="totalStudents">{{ total_students }}</span></p>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>NAME</th>
+                        {% for day_num in days_in_month %} {# Renamed for clarity #}
+                            <th>{{ day_num }}</th>
+                        {% endfor %}
+                        <th>Total Present</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student_record in students_data %} {# Renamed for clarity #}
+                    <tr onclick="window.location='{% url 'tuition_app:student_detail' student_record.student.id %}'" style="cursor: pointer;">
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ student_record.student.name }}</td>
+                        {% for status in student_record.attendance_statuses %}
+                            <td class="{% if status == 'P' %}present{% elif status == 'A' %}absent{% else %}no-record{% endif %}">
+                                {{ status }}
+                            </td>
+                        {% endfor %}
+                        <td>{{ student_record.total_present }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{{ days_in_month|length|add:3 }}">No students found matching your criteria.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="button-group">
+            <button id="darkModeToggle" class="dark-mode-toggle">🌙</button>
+            <form method="post" action="{% url 'tuition_app:logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="logout-button">Logout</button>
+            </form>
+        </div>
+        <div class = "home-button-container">
+            <a href = "{% url 'tuition_app:filter_students' %}" class="btn">Home Page</a>
+        </div>
+    </div>
+    <script>
+        const STATIC_URL = "{% get_static_prefix %}";
+
+        function applyFilters() {
+            const standard = document.getElementById("standard").value;
+            const board = document.getElementById("board").value;
+            const school = document.getElementById("school").value;
+            const branch = document.getElementById("branch").value;
+            const month = document.getElementById("month").value;
+
+            const url = `/app/monthly_attendance/?standard=${standard}&board=${board}&school=${school}&branch=${branch}&month=${month}`;
+
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayStudents(data.students, data.days);
+                })
+                .catch(error => {
+                    console.error("Error fetching students:", error);
+                    alert("An error occurred while fetching students. Please try again.");
+                });
+        }
+
+        function resetFilters() {
+            document.getElementById("standard").selectedIndex = 0;
+            document.getElementById("board").selectedIndex = 0;
+            document.getElementById("school").selectedIndex = 0;
+            document.getElementById("branch").selectedIndex = 0;
+            document.getElementById("month").value = "";
+            applyFilters();
+        }
+
+
+
+        function displayStudents(students, days) {
+                const tbody = document.querySelector("table tbody");
+                const studentCountSpan = document.getElementById("totalStudents");
+                const tableHeaderRow = document.querySelector("table thead tr");
+
+                tbody.innerHTML = ""; // Clear existing rows
+
+                // Update table headers for days
+                // Assuming the first two th (Counter, Name) and last th (Total Present) are static
+                let headerHTML = "<th></th><th>NAME</th>";
+                days.forEach(day => {
+                    headerHTML += `<th>${day}</th>`;
+                });
+                headerHTML += "<th>Total Present</th>";
+                tableHeaderRow.innerHTML = headerHTML;
+
+
+                if (students.length === 0) {
+                    const numCols = days.length + 3; // Counter, Name, Days, Total Present
+                    tbody.innerHTML = `<tr><td colspan="${numCols}">No students found matching your criteria.</td></tr>`;
+                } else {
+                    students.forEach((studentRecord, index) => {
+                        const row = tbody.insertRow();
+                        row.style.cursor = "pointer";
+                        // Note: You'll need a way to get the student_detail URL dynamically in JS
+                        // or fetch it along with other student data if you want the click to work after AJAX update.
+                        // For simplicity, I'm omitting the dynamic URL for student_detail in JS row creation.
+                        // You might need to adjust this if student_detail click is essential after AJAX.
+                        // One way is to add 'data-student-id' to the row and add event listener.
+                        row.setAttribute('data-student-id', studentRecord.id); // studentRecord should have 'id'
+                        row.onclick = function() { window.location.href = `/app/student_detail/${studentRecord.id}/`; };
+
+
+                        row.insertCell().textContent = index + 1;
+                        row.insertCell().textContent = studentRecord.name;
+
+                        studentRecord.monthly_attendance.forEach(status => {
+                            const cell = row.insertCell();
+                            cell.textContent = status;
+                            if (status === 'P') {
+                                cell.className = 'present';
+                            } else if (status === 'A') {
+                                cell.className = 'absent';
+                            } else {
+                                cell.className = 'no-record';
+                            }
+                        });
+                        row.insertCell().textContent = studentRecord.total_present;
+                    });
+                }
+                studentCountSpan.textContent = students.length;
+
+                // Update the colspan for the "No students found" message dynamically if it's ever needed by JS logic
+                const noStudentRow = tbody.querySelector('td[colspan]');
+                if (noStudentRow) {
+                    noStudentRow.setAttribute('colspan', days.length + 3);
+                }
+            }
+
+            // Add this to ensure the month filter submits the form for non-AJAX GET requests
+            // or if you want applyFilters to be triggered on month change automatically.
+            document.getElementById("month").addEventListener("change", function() {
+                // If you want automatic application on month change:
+                // applyFilters(); 
+                // Or if you want it to submit the main form (less ideal with current JS setup):
+                // this.form.submit(); 
+            });
+
+            // Initial call to applyFilters if you want the table to load via AJAX on page load
+            // Or ensure your Django view populates it correctly on initial load.
+            // For now, let's assume Django populates it initially, and applyFilters is for subsequent changes.
+            // If you want the initial load to also be via AJAX:
+            // document.addEventListener("DOMContentLoaded", function () {
+            //    applyFilters(); // This will fetch with default/empty filter values
+            //    // ... rest of your DOMContentLoaded ...
+            // });
+
+        
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleButton = document.getElementById("darkModeToggle");
+            const body = document.body;
+
+            if (localStorage.getItem("dark-mode") === "enabled") {
+                body.classList.add("dark-mode");
+                toggleButton.textContent = "☀️";
+            }
+
+            toggleButton.addEventListener("click", function () {
+                body.classList.toggle("dark-mode");
+
+                if (body.classList.contains("dark-mode")) {
+                    localStorage.setItem("dark-mode", "enabled");
+                    toggleButton.textContent = "☀️";
+                } else {
+                    localStorage.setItem("dark-mode", "disabled");
+                    toggleButton.textContent = "🌙";
+                }
+            });
+
+            // Display sample students on initial load if no data
+            const initialDays = Array.from({length: 31}, (_, i) => String(i + 1));
+            displayStudents([], initialDays);
+        });
+    </script>
+    <style>
+        /* Add some basic styling for presence/absence */
+        .present { background-color: #c8e6c9; color: #2e7d32; } /* Light Green */
+        .absent { background-color: #ffcdd2; color: #c62828; } /* Light Red */
+        .no-record { background-color: #f0f0f0; color: #555; } /* Light Grey */
+    </style>
+</body>
+</html>

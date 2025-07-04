@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ student.name }}'s Attendance Heatmap</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .heatmap-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 20px;
+        }
+
+        .heatmap-grid {
+            display: flex;
+        }
+
+        .day-labels {
+            display: flex;
+            flex-direction: column;
+            margin-right: 6px;
+            justify-content: space-between;
+        }
+
+        .day-label {
+            height: 14px;
+            font-size: 10px;
+            margin: 2px 0;
+            color: #555;
+        }
+
+        .month-labels {
+            display: flex;
+            margin-left: 40px;
+            margin-bottom: 4px;
+        }
+
+        .month {
+            width: 14px;
+            font-size: 10px;
+            text-align: center;
+            margin-right: 1px;
+        }
+
+        .week-column {
+            display: flex;
+            flex-direction: column;
+            margin-right: 1px;
+        }
+
+        .cell {
+            width: 12px;
+            height: 12px;
+            margin: 1px 0;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .present {
+            background-color: #4caf50;
+        }
+
+        .absent {
+            background-color: #f44336;
+        }
+
+        .no-data {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="heat-map" style="background-color: #f0f3fa; padding: 20px; border-radius: 8px; margin-top: 20px;">
+    <div class="glanceyear-container">
+        <h2 class="glanceyear-header" style="text-align: center; margin-bottom: 20px; color: #333;">
+            Attendance for {{ student.name }}
+            <span class="glanceyear-quantity" style="font-size: 14px; color: #666; display: block; margin-top: 5px;"></span>
+        </h2>
+        <div class="glanceyear-content" id="js-glanceyear" style="text-align: center;"></div>
+
+        <div class="glanceyear-summary" style="text-align: center; margin-top: 20px;">
+            <div class="glanceyear-legend" style="margin-bottom: 10px;">
+                Absent&nbsp;
+                <span style="background-color: #F44336; width:20px; height:20px; display:inline-block; border-radius:4px; margin: 0 5px;"></span>
+                &nbsp;&nbsp;
+                Present&nbsp;
+                <span style="background-color: #4CAF50; width:20px; height:20px; display:inline-block; border-radius:4px; margin: 0 5px;"></span>
+                &nbsp;&nbsp;
+                No Data&nbsp;
+                <span style="background-color: #eee; width:20px; height:20px; display:inline-block; border-radius:4px; margin: 0 5px; border: 1px solid #ccc;"></span>
+            </div>
+            <div id="debug" style="font-size: 14px; color: #666; margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <script>
+        $(function() {
+            // Get the attendance data from Django template
+            var attendanceData = {{ attendance_data_json|safe }};
+            
+            console.log('Raw attendance data:', attendanceData); // Debug log
+            
+            // Ensure the data is in the correct format
+            var processedData = [];
+            if (Array.isArray(attendanceData)) {
+                processedData = attendanceData.map(function(item) {
+                    return {
+                        date: item.date,
+                        value: item.value // Keep original value (should be 1 for present, 0 for absent)
+                    };
+                });
+            } else {
+                // If it's an object, convert it
+                for (var date in attendanceData) {
+                    processedData.push({
+                        date: date,
+                        value: attendanceData[date]
+                    });
+                }
+            }
+            
+            console.log('Processed attendance data:', processedData); // Debug log
+        
+            // Clear any existing heatmap and initialize
+            $('#js-glanceyear').empty().glanceyear(
+                processedData,
+                {
+                    eventClick: function(e) {
+                        var status = '';
+                        var value = e.count;
+                        
+                        if (value == 1 || value === true || value === 'true') {
+                            status = 'Present';
+                        } else if (value == 0 || value === false || value === 'false') {
+                            status = 'Absent';
+                        } else {
+                            status = 'No data';
+                        }
+                        
+                        $('#debug').html('<strong>Date:</strong> ' + e.date + ', <strong>Attendance:</strong> ' + status);
+                    },
+                    showToday: false,
+                    cellColor: function(count) {
+                        console.log('cellColor called with:', count, typeof count); // Debug log
+                        
+                        // Handle different possible value types
+                        if (count === 1 || count === '1' || count === true || count === 'true') {
+                            return "#4CAF50";  // Green for Present
+                        } else if (count === 0 || count === '0' || count === false || count === 'false') {
+                            return "#F44336";  // Red for Absent
+                        } else {
+                            return "#eee";     // Grey for no data
+                        }
+                    }
+                }
+            );
+        });
+    </script>
+</body>
+</html>

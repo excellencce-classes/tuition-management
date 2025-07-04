@@ -1,0 +1,18 @@
+<!-- tuition_app/templates/tuition_app/success.html -->
+ {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Successful</title>
+    <link rel="stylesheet" href="{% static 'tuition_app/css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Registration Successful!</h1>
+        <p>Thank you for registering. We'll contact you soon.</p>
+        <a href="{% url 'tuition_app:register' %}">Register Another Student</a>
+    </div>
+</body>
+</html>

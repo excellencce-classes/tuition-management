@@ -1,0 +1,579 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--Heat Map Library-->
+    <script src='https://cdn.plot.ly/plotly-2.16.1.min.js'></script>
+
+    <!-- Boxicons CDN Link -->
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Stylesheets Link -->
+    <link rel="stylesheet" href="{% static 'tuition_app/css/glanceyear.css' %}">
+
+    <!-- Glance Year dependencies -->
+    <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+    <script src="{% static 'tuition_app/js/jquery.glanceyear.js' %}"></script>
+
+    <title>Student Details - {{ student.name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #ffcc33, #ff6600);
+            text-align: center;
+            padding: 20px;  
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        h1 {
+            text-align: left;
+            color: #ff6200;
+            margin-bottom: 20px;
+        }
+        .profile-image {
+            width: 45%; /* Left column takes 30% of the width */
+            text-align: center;
+            margin-top: 50px;
+        }
+        .profile-image img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ff6200;
+            margin-bottom: 10px;
+        }
+
+        .student-details {
+            width: 60%; /* Right column takes 65% of the width */
+        }
+        .student-details form {
+            margin-top: 10px;
+        }
+        .student-details label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+            text-align: left;
+        }
+        .student-details input, .student-details select, .student-details textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+        .student-details textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        .student-details .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .student-details .back-button {
+            background-color: #ccc;
+            color: #333;
+        }
+        .student-details .back-button:hover {
+            background-color: #bbb;
+        }
+        .student-details .save-button {
+            background-color: #ff6200;
+            color: white;
+        }
+        .student-details .save-button:hover {
+            background-color: #e55a00;
+        }
+        .installment-table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        .installment-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em; /* Reduce font size for compactness */
+        }
+        .installment-table th, .installment-table td {
+            border: 1px solid #ddd;
+            padding: 6px; /* Reduce padding for compactness */
+            text-align: center;
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+        .installment-table th {
+            background-color: #ff6200;
+            color: white;
+            font-size: 0.85em; /* Slightly smaller font for headers */
+        }
+        .installment-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        /* Adjust column widths to prioritize fitting */
+        .installment-table th:nth-child(1), .installment-table td:nth-child(1) { /* Installment Number */
+            width: 15%;
+        }
+        .installment-table th:nth-child(2), .installment-table td:nth-child(2) { /* Amount Paid */
+            width: 15%;
+        }
+        .installment-table th:nth-child(3), .installment-table td:nth-child(3) { /* Payment Mode */
+            width: 15%;
+        }
+        .installment-table th:nth-child(4), .installment-table td:nth-child(4) { /* Balance */
+            width: 15%;
+        }
+        .installment-table th:nth-child(5), .installment-table td:nth-child(5) { /* View Receipt */
+            width: 15%;
+        }
+        
+        /* Style for table input fields */
+        .installment-table input[type="number"], 
+        .installment-table input[type="text"] {
+            width: 100%;
+            padding: 4px;
+            margin: 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 0.85em;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .profile-image, .student-details {
+                width: 100%;
+            }
+            .profile-image {
+                margin-bottom: 20px;
+            }
+        }
+
+
+
+        #confirmPopup {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 9999;
+        backdrop-filter: blur(2px);
+        }
+
+        #confirmPopup .popup-content {
+            background-color: #fff;
+            padding: 30px 20px;
+            width: 320px;
+            margin: 15% auto;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        #confirmPopup p {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        #confirmPopup button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #confirmPopup button:first-of-type {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        #confirmPopup button:first-of-type:hover {
+            background-color: #c0392b;
+        }
+
+        #confirmPopup button:last-of-type {
+            background-color: #ccc;
+            color: #333;
+        }
+
+        #confirmPopup button:last-of-type:hover {
+            background-color: #aaa;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-grey {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+
+        .btn-grey:hover {
+            background-color: #e0e0e0;
+            color: #000;
+        }
+
+        .btn-red {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-red:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-save {
+            background-color: #2ecc71; /* Green */
+            color: white;
+        }
+
+        .btn-save:hover {
+            background-color: #27ae60;
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-save:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-image">
+            <img src="{{student.img.url}}" alt="{{student.name}}" />
+        </div>
+
+        <div class="student-details">
+            <h1>{{ student.name }}</h1>
+            <form method="POST" action="{% url 'tuition_app:update_student' student.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" value="{{ student.name }}" required>
+
+                <label for="email">Email:</label>
+                <input type="text" id="email" name="email" value="{{ student.email }}" required>
+
+                <label for="dob">Date of Birth:</label>
+                <input type="date" id="dob" name="dob" value="{{dob}}" required>
+
+                <label for="phone">Phone:</label>
+                <input type="text" id="phone" name="phone" value="{{ student.phone }}" required>
+
+                <label for="father_name">Father Name:</label>
+                <input type="text" id="father_name" name="father_name" value="{{ student.father_name }}" required>
+
+                <label for="father_phone">Father Phone:</label>
+                <input type="text" id="father_phone" name="father_phone" value="{{ student.father_phone }}" required>
+
+                <label for="father_occupation">Father Occupation:</label>
+                <input type="text" id="father_occupation" name="father_occupation" value="{{ student.father_occupation }}" required>
+
+                <label for="mother_name">Mother Name:</label>
+                <input type="text" id="mother_name" name="mother_name" value="{{ student.mother_name }}" required>
+
+                <label for="mother_phone">Mother Phone:</label>
+                <input type="text" id="mother_phone" name="mother_phone" value="{{ student.mother_phone }}" required>
+
+                <label for="mother_occupation">Mother Occupation:</label>
+                <input type="text" id="mother_occupation" name="mother_occupation" value="{{ student.mother_occupation }}" required>
+
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" required>{{ student.address }}</textarea>
+
+                
+
+                
+
+                <label for="school">School:</label>
+                <select id="school" name="school">
+                    <option value="" {% if not student.school %}selected{% endif %}>Not Applicable</option>
+                    <option value="Saint Michael School" {% if student.school == "Saint Michael School" %}selected{% endif %}>Saint Michael School</option>
+                    <option value="Orchid School" {% if student.school == "Orchid School" %}selected{% endif %}>Orchid School</option>
+                    <option value="Sai Angel School" {% if student.school == "Sai Angel School" %}selected{% endif %}>Sai Angel School</option>
+                    <option value="Icon Public School" {% if student.school == "Icon Public School" %}selected{% endif %}>Icon Public School</option>
+                    <option value="Takshila School" {% if student.school == "Takshila School" %}selected{% endif %}>Takshila School</option>
+                    <option value="Podar School" {% if student.school == "Podar School" %}selected{% endif %}>Podar School</option>
+                    <option value="Auxilium Convent School" {% if student.school == "Auxilium Convent School" %}selected{% endif %}>Auxilium Convent School</option>
+                    <option value="Sacred Heart Convent School" {% if student.school == "Sacred Heart Convent School" %}selected{% endif %}>Sacred Heart Convent School</option>
+                    <option value="Ashokbhau Firodia School" {% if student.school == "Ashokbhau Firodia School" %}selected{% endif %}>Ashokbhau Firodia School</option>
+                    <option value="Athare Patil School" {% if student.school == "Athare Patil School" %}selected{% endif %}>Athare Patil School</option>
+                </select>
+
+                <label for="school_text">School Text:</label>
+                <input type="text" id="school_text" name="school_text" value="{{ student.school_text }}">
+
+                <label for="standard">Standard:</label>
+                <select id="standard" name="standard" required>
+                    <option value="8" {% if student.standard == "8" %}selected{% endif %}>8th</option>
+                    <option value="9" {% if student.standard == "9" %}selected{% endif %}>9th</option>
+                    <option value="10" {% if student.standard == "10" %}selected{% endif %}>10th</option>
+                    <option value="12" {% if student.standard == "12" %}selected{% endif %}>12th</option>
+                </select>
+
+                <label for="board">Board:</label>
+                <select id="board" name="board" required>
+                    <option value="CBSE" {% if student.board == "CBSE" %}selected{% endif %}>CBSE</option>
+                    <option value="SSC" {% if student.board == "SSC" %}selected{% endif %}>SSC</option>
+                    <option value="HSC" {% if student.board == "HSC" %}selected{% endif %}>HSC</option>
+                </select>
+
+                <label for="branch">Branch:</label>
+                <select id="branch" name="branch" required>
+                    <option value="Gulmohar" {% if student.branch == "Gulmohar" %}selected{% endif %}>Gulmohar</option>
+                    <option value="Market Yard" {% if student.branch == "Market Yard" %}selected{% endif %}>Market Yard</option>
+                </select>
+
+                <label for="subject">Subject:</label>
+                <input type="text" id="subject" name="subject" value="{{ student.subject }}" required>
+
+
+
+
+
+                <label for="fees">Fees:</label>
+                <input type="number" id="fees" name="fees" value="{{ student.fees }}" required readonly>
+
+                <label for="fee_structure">Fee Structure:</label>
+                <input type="text" id="fee_structure" name="fee_structure" value="{{ student.fee_structure }}" required>
+
+                <label for="discount">Discount:</label>
+                <input type="number" id="discount" name="discount" value="{{ student.discount }}" min="0" required>
+
+                <label for="total_fees">Total Fees (After Discount):</label>
+                <input type="text" id="total_fees" name="total_fees" value="" readonly>
+
+                <label for="installment_plan">Installment Plan:</label>
+                <select id="installment_plan" name="installment_plan" required>
+                    <option value="yes" {% if student.installment_plan == "yes" %}selected{% endif %}>Yes</option>
+                    <option value="no" {% if student.installment_plan == "no" %}selected{% endif %}>No</option>
+                </select>
+
+                <!--<label for="full_fee_paid">Full Fees Paid:</label>
+                <input type="checkbox" id="full_fee_paid" name="full_fee_paid" value="{{ student.full_fee_paid }}">-->
+                
+                <label>Installment Details:</label>
+                <div class="installment-table-wrapper">
+                    <table class="installment-table">
+                        <thead>
+                            <tr>
+                                <th>Installment Number</th>
+                                <th>Amount Paid</th>
+                                <th>Payment Mode</th>
+                                <th>Balance</th>
+                                <th>View Receipt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1.</td>
+                                <td>
+                                    ₹<input type="number" id="amount1" name="amount1" value="{{ student.amount1 }}" min="0" step="1">
+                                </td>
+                                <td>
+                                    <input type="text" id="payment_mode1" name="payment_mode1" value="{{ student.payment_mode1|capfirst }}">
+                                </td>
+                                <td id="balance-1">₹0</td>
+                                <td>
+                                    {% if student.payment_proof1 %}
+                                        <a href="{{ student.payment_proof1.url }}" target="_blank">View Receipt</a>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>2.</td>
+                                <td>
+                                    ₹<input type="number" id="amount2" name="amount2" value="{{ student.amount2 }}" min="0" step="1">
+                                </td>
+                                <td>
+                                    <input type="text" id="payment_mode2" name="payment_mode2" value="{{ student.payment_mode2|capfirst }}">
+                                </td>
+                                <td id="balance-2">₹0</td>
+                                <td>
+                                    {% if student.payment_proof2 %}
+                                        <a href="{{ student.payment_proof2.url }}" target="_blank">View Receipt</a>
+                                    {% else %}
+                                        <input type="file" id="payment_proof2" name="payment_proof2">
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="heat-map" style="background-color: #f0f3fa">
+                    <div class="glanceyear-container">
+                        <h1 class="glanceyear-header">Attendance for {{ student.name }}
+                            <span class="glanceyear-quantity"></span>
+                        </h1>
+                        <div class="glanceyear-content" id="js-glanceyear"></div>
+                
+                        <div class="glanceyear-summary">
+                            <div class="glanceyear-legend">
+                                Absent&nbsp;
+                                <span style="background-color: #F44336; width:20px; height:20px; display:inline-block; border-radius:4px;"></span>
+                                &nbsp;&nbsp;
+                                Present&nbsp;
+                                <span style="background-color: #4CAF50; width:20px; height:20px; display:inline-block; border-radius:4px;"></span>
+                            </div>
+                            Calendar with attendance data <br>
+                            <span id="debug"></span>
+                        </div>
+                    </div>
+                
+                    <script>
+                        $(function() {
+                            var massive = {{ attendance_data_json|safe }};
+                        
+                            $('#js-glanceyear').empty().glanceyear(
+                                massive,
+                                {
+                                    eventClick: function(e) {
+                                        $('#debug').html('Date: '+ e.date + ', Attendance: ' + (e.count == 1 ? "Present" : "Absent"));
+                                    },
+                                    showToday: false,
+                                    cellColor: function(count) {
+                                        if (count === 1) {
+                                            return "#4CAF50";  // Green for Present
+                                        } else if (count === 0) {
+                                            return "#F44336";  // Red for Absent
+                                        } else {
+                                            return "#eee";     // Grey for no data
+                                        }
+                                    }
+                                }
+                            );
+                        });
+                    </script>
+
+
+                </div>   
+                
+                <br>
+                <button type="submit" class="btn btn-save">💾 Save Changes</button>
+ 
+            </form>
+
+            <div class="button-group">
+                <a href="{% url 'tuition_app:filter_students' %}" class="btn btn-grey">← Back</a>
+                <button class="btn btn-red" onclick="showConfirmPopup('{% url 'tuition_app:delete_student' student.id %}')">🗑️ Delete</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="confirmPopup">
+        <div class="popup-content">
+            <p>Are you sure you want to delete this student?</p>
+            <button onclick="confirmDelete()">Yes, Delete</button>
+            <button onclick="closePopup()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const feesInput = document.getElementById('fees');
+            const discountInput = document.getElementById('discount');
+            const totalFeesInput = document.getElementById('total_fees');
+            const amount1Input = document.getElementById('amount1');
+            const amount2Input = document.getElementById('amount2');
+            const balance1 = document.getElementById('balance-1');
+            const balance2 = document.getElementById('balance-2');
+        
+            let deleteUrl = "";
+
+            // Define popup functions
+            window.showConfirmPopup = function (url) {
+                deleteUrl = url;
+                document.getElementById("confirmPopup").style.display = "block";
+            };
+
+            window.closePopup = function () {
+                document.getElementById("confirmPopup").style.display = "none";
+                deleteUrl = "";
+            };
+
+            window.confirmDelete = function () {
+                window.location.href = deleteUrl;
+            };
+
+            function updateBalances() {
+                const feesValue = parseInt(feesInput.value) || 0;
+                const discountValue = parseInt(discountInput.value) || 0;
+                const amount1Value = parseInt(amount1Input.value) || 0;
+                const amount2Value = parseInt(amount2Input.value) || 0;
+
+                // Calculate total fees after discount
+                const totalFees = Math.max(0, feesValue - discountValue);
+                totalFeesInput.value = `₹${totalFees}`;
+
+                // Calculate balances
+                // Balance 1 = Total fees - Amount 1
+                const balance1Value = Math.max(0, totalFees - amount1Value);
+                balance1.textContent = `₹${balance1Value}`;
+
+                // Balance 2 = Total fees - (Amount 1 + Amount 2)
+                const balance2Value = Math.max(0, totalFees - amount1Value - amount2Value);
+                balance2.textContent = `₹${balance2Value}`;
+            }
+
+            // Add event listeners for all inputs that affect balances
+            discountInput.addEventListener('input', updateBalances);
+            amount1Input.addEventListener('input', updateBalances);
+            amount2Input.addEventListener('input', updateBalances);
+
+            // Initial calculation
+            updateBalances();
+        });
+    </script>
+</body>
+</html>
