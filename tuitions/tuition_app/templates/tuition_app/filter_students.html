@@ -500,7 +500,7 @@
             students.forEach(student => {
                 const schoolDisplay = student.school === 'Other' && student.school_text ? 
                     student.school_text : (student.school || 'Other');
-                const row = `<tr onclick="window.location='/app/student/${student.id}/'" style="cursor: pointer;">
+                const row = `<tr onclick="window.location='/student/${student.id}/'" style="cursor: pointer;">
                     <td>${student.name}</td>
                     <td>${student.standard}</td>
                     <td>${student.board}</td>
