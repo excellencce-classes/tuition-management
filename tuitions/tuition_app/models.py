@@ -74,7 +74,7 @@ class StudentRegistration(models.Model):
     mother_phone = models.CharField(max_length=10)
     mother_occupation = models.CharField(max_length=50)
     address = models.TextField()
-    dob = models.DateField(default=datetime.date.today)
+    dob = models.DateField()
     img = models.ImageField(upload_to='student_img/', default='student_img/fallback.png', blank=True)
     standard = models.CharField(max_length=2, choices=STANDARD_CHOICES)
     board = models.CharField(max_length=4, choices=BOARD_CHOICES)
