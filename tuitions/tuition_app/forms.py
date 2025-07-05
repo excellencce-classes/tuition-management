@@ -15,6 +15,7 @@ class RegistrationForm(forms.ModelForm):
 
         labels = {
             'img': 'Img (Max size 10Mb):',
+            'dob': 'Date of Birth',
         }
         
         widgets = {
@@ -37,7 +38,7 @@ class RegistrationForm(forms.ModelForm):
             'full_fee_paid': forms.CheckboxInput(attrs={'id': 'full_fee_paid'}),
             'img (max size 10 Mb)': forms.FileInput(attrs={'id': 'img', 'placeholder':'Upload image upto 10 Mb only'}),
             'email': forms.EmailInput(attrs={'id': 'email'}),
-            'dob': forms.TextInput(attrs={'id': 'dob', 'placeholder': 'YYYY-MM-DD', 'type': 'text'}),
+            'dob': forms.DateInput(attrs={'id': 'dob', 'type': 'date'}),
             'mother_name': forms.TextInput(attrs={'id': 'mother_name'}),
             'mother_phone': forms.TextInput(attrs={'id': 'mother_phone'}),
             'mother_occupation': forms.TextInput(attrs={'id': 'mother_occupation'}),
