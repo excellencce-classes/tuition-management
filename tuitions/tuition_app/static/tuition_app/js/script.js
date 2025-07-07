@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitButton = form.querySelector('button[type="submit"]');
 
     console.log('Form elements loaded:', { standard, board, subjectCheckboxes, school, branch, fees, feeStructure, installmentPlan, amount1, paymentMode1, installmentFields });
-
+    let baseFee = 0
     const feeStructureData = {
         'Gulmohar': {
             'CBSE': {
@@ -95,6 +95,56 @@ document.addEventListener('DOMContentLoaded', function() {
             'English (Test Series)'
         ]
     };
+
+    function updatePaymentDetails() {
+    const paymentMessageDiv = document.getElementById('payment-message');
+    // Ensure amount1 and installmentPlan are available to this function
+    const amount1 = document.querySelector('[name="amount1"]') || document.getElementById('id_amount1');
+    const installmentPlan = document.querySelector('[name="installment_plan"]') || document.getElementById('id_installment_plan');
+
+    if (!paymentMessageDiv || !fees || !paymentMode1 || !amount1 || !installmentPlan) return;
+
+    const paymentMode = paymentMode1.value;
+    const onlineCharge = 1000;
+    let finalFee = baseFee;
+
+    if (paymentProof1) {
+        if (paymentMode === 'cash') {
+            paymentProof1.disabled = true;
+            paymentProof1.required = false;
+            paymentProof1.value = '';
+        } else {
+            paymentProof1.disabled = false;
+            paymentProof1.required = (paymentMode === 'online');
+        }
+    }
+
+    if (paymentMode === 'online') {
+        finalFee += onlineCharge;
+        paymentMessageDiv.textContent = `For online transaction, ${onlineCharge} Rs charge will be added. (Fees: ${baseFee} + online charge: ${onlineCharge} = ${finalFee})`;
+        paymentMessageDiv.style.color = 'blue';
+    } else if (paymentMode === 'cash') {
+        if (parseInt(fees.value) > baseFee) {
+             paymentMessageDiv.textContent = `Cash selected. ${onlineCharge} Rs charge removed. Total to be paid: ${finalFee}`;
+             paymentMessageDiv.style.color = 'green';
+        } else {
+             paymentMessageDiv.textContent = '';
+        }
+    } else {
+        paymentMessageDiv.textContent = '';
+    }
+
+    fees.value = finalFee;
+
+    // --- ADDED: Recalculate the first installment based on the new finalFee ---
+    const installmentPlanVal = installmentPlan.value;
+    if (installmentPlanVal === 'yes') {
+        amount1.value = Math.floor(finalFee / 2);
+    } else if (installmentPlanVal === 'no') {
+        amount1.value = finalFee;
+    }
+}
+
 
     function updateForm() {
         if (!standard || !board || !subjectCheckboxes.length || !school || !branch || !fees || !feeStructure || !installmentPlan || !amount1 || !paymentMode1) {
@@ -215,11 +265,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     feeBreakup.push(`${subj}: ₹${fee}`);
                 }
             });
+            baseFee = totalFee
 
-            fees.value = totalFee > 0 ? totalFee : '';
+            fees.value = baseFee;
             feeStructure.value = feeBreakup.length > 0 ? feeBreakup.join(' + ') : '';
             console.log(`Fees set to: ${fees.value}, Fee structure set to: ${feeStructure.value}`);
         } else {
+            baseFee = 0;
             fees.value = '';
             feeStructure.value = '';
             console.log('Fees and fee structure cleared: missing stdVal, boardVal, or branchVal');
@@ -281,6 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (motheroccupationField) motheroccupationField.value = currentMotherOccupation;
         if (addressField) addressField.value = currentAddress;
 
+        updatePaymentDetails();
         checkFormCompletion();
     }
 
@@ -340,10 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (board) board.addEventListener('change', updateForm);
     if (branch) branch.addEventListener('change', updateForm);
     if (school) school.addEventListener('change', updateForm);
-    if (paymentMode1) paymentMode1.addEventListener('change', function() {
-        console.log('Payment mode selected:', paymentMode1.value);
-        updateForm();
-    });
+    if (paymentMode1) paymentMode1.addEventListener('change', updatePaymentDetails);
     if (paymentProof1) paymentProof1.addEventListener('change', checkFormCompletion);
     if (installmentPlan) installmentPlan.addEventListener('change', updateForm);
     if (emailField) {
