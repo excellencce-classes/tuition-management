@@ -178,31 +178,53 @@ def filter_students(request):
         if search:
             students = students.filter(name__icontains=search)
 
+        # --- START: NEW CALCULATION LOGIC ---
+        for student in students:
+            total_fees = student.fees or 0
+            discount = student.discount or 0
+            amount1_paid = student.amount1 or 0
+            amount2_paid = student.amount2 or 0
+            
+            remaining = (total_fees - discount) - (amount1_paid + amount2_paid)
+            student.remaining_fees = remaining  # Attach the calculated value to the student object
+        # --- END: NEW CALCULATION LOGIC ---
+
         total_students = students.count()
 
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            students_list = list(students.values(
-                'id', 'name', 'phone', 'address', 'branch', 'standard',
-                'board', 'subject', 'school', 'school_text', 'fees',
-                'payment_mode1', 'payment_proof1'
-            ))
-            for student in students_list:
-                if student['payment_proof1']:
-                    student['payment_proof1'] = request.build_absolute_uri('/media/' + student['payment_proof1'])
-                else:
-                    student['payment_proof1'] = ''
+            students_list = []
+            for student in students:
+                # --- START: NEW AJAX DATA PREPARATION ---
+                remaining_fees = (student.fees or 0) - (student.discount or 0) - (student.amount1 or 0) - (student.amount2 or 0)
+                # --- END: NEW AJAX DATA PREPARATION ---
+
+                student_data = {
+                    'id': student.id,
+                    'name': student.name,
+                    'standard': student.standard,
+                    'board': student.board,
+                    'school': student.school,
+                    'school_text': student.school_text,
+                    'branch': student.branch,
+                    # Use the newly calculated remaining_fees
+                    'fees': remaining_fees
+                }
+                students_list.append(student_data)
+
             return JsonResponse({'students': students_list, 'total_students': total_students})
+
     except Exception as e:
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'error': f'Failed to fetch students: {str(e)}'}, status=500)
-        raise  # Let Django handle non-AJAX errors for debugging
+        raise
 
     context = {
-        'students': students,
+        'students': students,  # The student objects now have the .remaining_fees attribute
         'total_students': total_students,
         'search': search,
     }
     return render(request, 'tuition_app/filter_students.html', context)
+
 
 @login_required
 def student_detail(request, student_id):
