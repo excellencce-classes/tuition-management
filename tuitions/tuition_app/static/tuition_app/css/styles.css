@@ -230,3 +230,10 @@ button:disabled {
     display: block;
     margin: 20px auto;
 }
+
+.form-message {
+    font-size: 0.95em;
+    margin-top: 5px;
+    padding: 5px;
+    border-radius: 3px;
+}
