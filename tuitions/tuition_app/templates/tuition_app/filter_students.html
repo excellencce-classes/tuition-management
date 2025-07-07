@@ -349,7 +349,7 @@
                         <th>Board</th>
                         <th>School</th>
                         <th>Branch</th>
-                        <th>Fees</th>
+                        <th>Remaining Fees</th>
                         <th>Attendance</th>
                         <th>Indicator</th>
                     </tr>
@@ -368,7 +368,7 @@
                             {% endif %}
                         </td>
                         <td>{{ student.branch }}</td>
-                        <td>{{ student.fees }}</td>
+                        <td>{{ student.remaining_fees }}</td>
                         <td>
                             <div class="attendance-buttons" data-student-id="{{ student.id }}">
                                 <button class="yes-btn" onclick="markAttendance(event, true, '{{ student.id }}')">Yes</button>
