@@ -109,10 +109,10 @@
             <div>
                 {{ form.payment_mode1.label_tag }} {{ form.payment_mode1 }} {{ form.payment_mode1.errors }}
             </div>
+            <div id="payment-message" class="form-message"></div>
             <div>
                 {{ form.payment_proof1.label_tag }} {{ form.payment_proof1 }} {{ form.payment_proof1.errors }}
             </div>
-            <div id="payment-message" class="form-message"></div>
         </div>
         <p class="qr">
             <img src="{% static 'tuition_app/imgs/qr.png' %}" alt="Payment Information" width="300px" height="300px">
